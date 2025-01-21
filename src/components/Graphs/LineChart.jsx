@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import { Box } from "@mui/material";
+import { fetchForecastData } from "../../api/graphData";
 
 const LineChart = () => {
+  const [chartData, setChartData] = useState([]);
   const chartOptions = {
     chart: {
       type: "line",
@@ -106,6 +108,51 @@ const LineChart = () => {
       ],
     },
   ];
+  const parseDate = (dateString) => {
+    const [day, month, year] = dateString.split("-");
+    return `${year}-${month}-${day}`;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchForecastData();
+        console.log("response for line chart predict", response);
+        const graphData = response.data.graphs[0].figure;
+        console.log("response for line chart predict only graph", graphData);
+
+        const formattedData = [
+          {
+            name: "Actual 42 days",
+            data: graphData["Actual 42 days"].map((item) => ({
+              x: new Date(parseDate(item.date)).toISOString(),
+              y: item.count,
+            })),
+          },
+          {
+            name: "Predicted 42 days",
+            data: graphData["Predicted 42 days"].map((item) => ({
+              x: new Date(parseDate(item.date)).toISOString(),
+              y: item.count,
+            })),
+          },
+          {
+            name: "Next week projection",
+            data: graphData["Next week projection"].map((item) => ({
+              x: new Date(parseDate(item.date)).toISOString(),
+              y: item.count,
+            })),
+          },
+        ];
+
+        setChartData(formattedData);
+      } catch (error) {
+        console.error("Error fetching forecast data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Box
@@ -120,7 +167,7 @@ const LineChart = () => {
     >
       <Chart
         options={chartOptions}
-        series={seriesData}
+        series={chartData}
         type="line"
         height={400}
       />
