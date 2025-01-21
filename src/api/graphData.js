@@ -42,6 +42,15 @@ export const fetchTrendLinePlotData = async (payload) => {
         throw error;
     }
 };
+export const fetchIncidentDistributionHeatMap = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/heatmap/incident-distribution', payload);
+        return response
+    } catch (error) {
+        console.error('Error fetching incident types histogram:', error);
+        throw error;
+    }
+}
 export const fetchForecastData = async (payload) => {
     try {
         const response = await axiosInstance.post('/forecast/incident-counts', payload);
