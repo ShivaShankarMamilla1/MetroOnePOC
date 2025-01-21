@@ -91,7 +91,10 @@ function App() {
           </div>
         </>
       ) : (
-        <LoginPage setIsAuthenticated={setIsAuthenticated} />
+        <>
+          <AppHeader />
+          <LoginPage setIsAuthenticated={setIsAuthenticated} />
+        </>
       )}
     </>
   );
