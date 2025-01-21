@@ -7,6 +7,7 @@ import HistoricIncidentsChart from "./components/Graphs/HistoricIncidentsChart";
 import Heatmap from "./components/Graphs/HeatMap";
 import LineChart from "./components/Graphs/LineChart";
 import LoginPage from "./Pages/Login";
+
 function App() {
   const [authenticated, setIsAuthenticated] = useState(false);
   return (
@@ -22,76 +23,82 @@ function App() {
               padding: "10px",
             }}
           >
+            
             <div
               style={{
                 margin: "15px",
                 border: "1px solid #E2E8F0",
                 borderRadius: "10px",
                 height: "500px",
-                width: "400px",
+                width: "60%", 
+              }}
+            >
+            <LineChart/>               
+            </div>
+
+            <div
+              style={{
+                margin: "15px",
+                border: "1px solid #E2E8F0",
+                borderRadius: "10px",
+                height: "500px",
+                width: "35%", 
+              }}
+            >
+            <Heatmap />
+            </div>
+     
+            <div
+              style={{
+                margin: "15px",
+                border: "1px solid #E2E8F0",
+                borderRadius: "10px",
+                height: "500px",
+                width: "47.5%", 
+              }}
+            >
+               <HeatmapGraph />
+            </div>
+            <div
+              style={{
+                margin: "15px",
+                border: "1px solid #E2E8F0",
+                borderRadius: "10px",
+                height: "500px",
+                width: "47.5%",
+              }}
+            >
+             <IncidentTypeBarChart />
+            </div>
+            <div
+              style={{
+                margin: "15px",
+                border: "1px solid #E2E8F0",
+                borderRadius: "10px",
+                height: "500px",
+                width: "47.5%",
+              }}
+            >
+             <HistoricIncidentsChart />
+            </div>
+            <div
+              style={{
+                margin: "15px",
+                border: "1px solid #E2E8F0",
+                borderRadius: "10px",
+                height: "500px",
+                width: "47.5%",
               }}
             >
               <TrendGraphWithFilters />
             </div>
-            <div
-              style={{
-                margin: "15px",
-                border: "1px solid #E2E8F0",
-                borderRadius: "10px",
-                height: "500px",
-                width: "450px",
-              }}
-            >
-              <HeatmapGraph />
-            </div>
-            <div
-              style={{
-                margin: "15px",
-                border: "1px solid #E2E8F0",
-                borderRadius: "10px",
-                height: "500px",
-                width: "450px",
-              }}
-            >
-              <IncidentTypeBarChart />
-            </div>
-            <div
-              style={{
-                margin: "15px",
-                border: "1px solid #E2E8F0",
-                borderRadius: "10px",
-                height: "500px",
-                width: "400px",
-              }}
-            >
-              <HistoricIncidentsChart />
-            </div>
-            <div
-              style={{
-                margin: "15px",
-                border: "1px solid #E2E8F0",
-                borderRadius: "10px",
-                height: "500px",
-                width: "450px",
-              }}
-            >
-              <Heatmap />
-            </div>
-            <div
-              style={{
-                margin: "15px",
-                border: "1px solid #E2E8F0",
-                borderRadius: "10px",
-                height: "500px",
-                width: "450px",
-              }}
-            >
-              <LineChart />
-            </div>
           </div>
         </>
       ) : (
-        <LoginPage setIsAuthenticated={setIsAuthenticated} />
+        <>
+          <AppHeader />
+          <LoginPage setIsAuthenticated={setIsAuthenticated} />
+        </>
       )}
     </>
   );

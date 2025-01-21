@@ -141,11 +141,15 @@
 // };
 
 // export default IncidentTypeBarChart;
+
+
 import React, { useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import { Box, IconButton, Typography, Stack } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
 import { incidentTypesHistogramData } from "../../data/data";
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
@@ -198,7 +202,7 @@ const IncidentTypeBarChart = () => {
         enabled: true,
       },
     },
-    colors: ["#800080"],
+    colors: ["#808000"],
     plotOptions: {
       bar: {
         horizontal: false,
@@ -265,7 +269,7 @@ const IncidentTypeBarChart = () => {
         flexDirection: "column",
         justifyContent: "center",
         height: "100%",
-        padding: "5px",
+        padding: "5px",        
       }}
     >
       <ChartFilters
@@ -274,37 +278,49 @@ const IncidentTypeBarChart = () => {
         onApplyFilters={handleApplyFilters}
       />
 
-      <ReactApexChart
-        options={options}
-        series={series}
-        type="bar"
-        height={400}
-      />
-
-      <Stack
-        direction="row"
-        spacing={2}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ mt: 2 }}
-      >
-        <IconButton onClick={handlePrevPage} disabled={currentPage === 0}>
-          <ArrowBackIcon />
+      <Box sx={{ position: "relative", width: "100%" }}>
+        <IconButton
+          onClick={handlePrevPage}
+          disabled={currentPage === 0}
+          sx={{
+            position: "absolute",
+            left: "-10px", 
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 1,
+            color: "black"
+          }}
+        >
+          <KeyboardArrowLeftIcon fontSize="large"/>
         </IconButton>
 
-        <Typography variant="body1">
-          Page {currentPage + 1} of {totalPages}
-        </Typography>
+        <ReactApexChart
+          options={options}
+          series={series}
+          type="bar"
+          height={400}
+        />
 
+      
         <IconButton
           onClick={handleNextPage}
           disabled={currentPage === totalPages - 1}
+          sx={{
+            position: "absolute",
+            right: "-30px", 
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 1,
+            color: "black"
+          }}
         >
-          <ArrowForwardIcon />
+          <KeyboardArrowRightIcon fontSize="large" />
         </IconButton>
-      </Stack>
+      </Box>
+
     </Box>
   );
 };
 
 export default IncidentTypeBarChart;
+

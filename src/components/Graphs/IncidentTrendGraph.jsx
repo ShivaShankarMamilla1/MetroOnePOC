@@ -29,7 +29,7 @@ const TrendGraphWithFilters = () => {
           data: [120, 150, 130, 170, 160, 140, 180],
         },
       ],
-      color: ["#00FF00"],
+      color: ["#008080"],
     },
     weekly: {
       categories: [
@@ -47,7 +47,7 @@ const TrendGraphWithFilters = () => {
           data: [110, 145, 125, 165, 150, 135, 175],
         },
       ],
-      color: ["#FFD700"],
+      color: ["#4169E1"],
     },
     monthly: {
       categories: [
@@ -65,7 +65,7 @@ const TrendGraphWithFilters = () => {
           data: [400, 450, 500, 550, 600, 650, 700],
         },
       ],
-      color: ["#800080"],
+      color: ["#FF6666"],
     },
     yearly: {
       categories: ["2021", "2022", "2023", "2024", "2025"],
@@ -141,7 +141,7 @@ const TrendGraphWithFilters = () => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        height: "100%",
+        height: "92.5%",
         padding: "5px",
       }}
     >

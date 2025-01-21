@@ -6,13 +6,13 @@ const LineChart = () => {
   const chartOptions = {
     chart: {
       type: "line",
-      background: "#FFFFFF",
+      background: "#1E1E2F",
       toolbar: {
         show: false,
       },
     },
     theme: {
-      mode: "light",
+      mode: "dark",
     },
     stroke: {
       curve: "smooth",
@@ -25,7 +25,7 @@ const LineChart = () => {
       type: "datetime",
       labels: {
         style: {
-          colors: "#333333",
+          colors: "#FFFFFF",
         },
       },
     },
@@ -33,23 +33,23 @@ const LineChart = () => {
       title: {
         text: "Incident Count",
         style: {
-          color: "#333333",
+          color: "#FFFFFF",
         },
       },
       labels: {
         style: {
-          colors: "#333333",
+          colors: "#FFFFFF",
         },
       },
     },
     legend: {
       position: "top",
       labels: {
-        colors: "#333333",
+        colors: "#FFFFFF",
       },
     },
     tooltip: {
-      theme: "light",
+      theme: "dark",
     },
     colors: ["#007FFF", "#4CAF50", "#FFA726"],
     title: {
@@ -57,7 +57,7 @@ const LineChart = () => {
       align: "center",
       style: {
         fontSize: "16px",
-        color: "#333333",
+        color: "#FFFFFF",
       },
     },
     subtitle: {
@@ -65,7 +65,7 @@ const LineChart = () => {
       align: "center",
       style: {
         fontSize: "14px",
-        color: "#666666",
+        color: "#AAAAAA",
       },
     },
   };
