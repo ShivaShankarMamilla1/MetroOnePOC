@@ -165,7 +165,12 @@ const IncidentTypeBarChart = () => {
       />
       
 
-       <Box sx={{ position: "relative", width: "100%" }}>
+      {isLoading? 
+      <Box sx={{display: "flex", justifyContent: "center", height:"400px", alignItems:"center"}}>
+        <CircularProgress/>   
+      </Box>
+       :
+       (<Box sx={{ position: "relative", width: "100%" }}>
         <IconButton
           onClick={handlePrevPage}
           disabled={currentPage === 0}
@@ -203,7 +208,7 @@ const IncidentTypeBarChart = () => {
         >
           <KeyboardArrowRightIcon fontSize="large" />
         </IconButton>
-      </Box>
+      </Box>)}
   
 
     </Box>

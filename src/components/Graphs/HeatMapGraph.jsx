@@ -94,11 +94,11 @@ const HeatmapGraph = () => {
         useFillColorAsStroke: true,
         colorScale: {
           ranges: [
-            { from: 0, to: 50, color: "#ff7c00" },
-            { from: 51, to: 100, color: "#ff6600" },
-            { from: 101, to: 150, color: "#ff4c00" },
-            { from: 151, to: 200, color: "#ff3300" },
-            { from: 201, to: 350, color: "#ff0000" },
+            { from: 0, to: 50, color: "#FFEB3B" }, // Light yellow
+            { from: 51, to: 100, color: "#FFC107" }, // Dark yellow
+            { from: 101, to: 150, color: "#FF9800" }, // Orange
+            { from: 151, to: 200, color: "#FF5722" }, // Red
+            { from: 201, to: 1000, color: "#B71C1C" }, // Dark red
           ],
         },
         distributed: false,
