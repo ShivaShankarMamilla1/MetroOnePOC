@@ -384,7 +384,6 @@ const TrendGraphWithFilters = () => {
         padding: "5px",
       }}
     >
-      {/* Filter section with expand button */}
       <Box
         sx={{
           display: "flex",
