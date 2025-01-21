@@ -75,7 +75,6 @@ const HistoricIncidentsChart = () => {
   // Apply filters and reload the graph
   const handleApplyFilters = () => {
     console.log("applied filter")
-    setCurrentPage(0); // Reset to the first page
     setActiveFilter(filters); // Trigger data fetching based on new filters
   };
 
@@ -93,69 +92,91 @@ const HistoricIncidentsChart = () => {
   };
 
   // Paginate the current graph data
-  const paginatedData = graphData.slice(
+  // const paginatedData = graphData.slice(
+  //   currentPage * pageSize,
+  //   (currentPage + 1) * pageSize
+  // );
+
+  const filteredData = graphData.filter((dataPoint) => {
+    if (filters.timeframe === "weekly" && dataPoint.Week) {
+      return true;
+    } else if (filters.timeframe === "monthly" && dataPoint.Month) {
+      return true;
+    } else if (filters.timeframe === "yearly" && dataPoint.Year) {
+      return true;
+    }
+  });
+  
+  const paginatedData = filteredData.slice(
     currentPage * pageSize,
     (currentPage + 1) * pageSize
   );
 
   // Prepare data for the chart
-  // const processData = () => {
-  //   let categories = [];
-  //   let seriesData = [];
+  const processData = () => {
+    let categories = [];
+    let seriesData = [];
+    console.log("paginatedData", paginatedData);
 
-  //   paginatedData.forEach((dataPoint) => {
-  //     if (filters.timeframe === "weekly" && dataPoint.Week) {
-  //       categories.push(dataPoint.Week);
-  //       seriesData.push(dataPoint.Count);
-  //     } else if (filters.timeframe === "monthly" && dataPoint.Month) {
-  //       categories.push(dataPoint.Month);
-  //       seriesData.push(dataPoint.Count);
-  //     } else if (filters.timeframe === "yearly" && dataPoint.Year) {
-  //       categories.push(dataPoint.Year);
-  //       seriesData.push(dataPoint.Count);
-  //     }
-  //   });
-
-  //   return { categories, seriesData };
-  // };
+    paginatedData.forEach((dataPoint) => {
+      if (filters.timeframe === "weekly" && dataPoint.Week) {
+        categories.push(dataPoint.Week);
+        seriesData.push(dataPoint.Count);
+      } else if (filters.timeframe === "monthly" && dataPoint.Month) {
+        categories.push(dataPoint.Month);
+        seriesData.push(dataPoint.Count);
+      } else if (filters.timeframe === "yearly" && dataPoint.Year) {
+        categories.push(dataPoint.Year);
+        seriesData.push(dataPoint.Count);
+      }
+    });
+    return { categories, seriesData };
+  };
 
   // Process data to fit the chart
   useEffect(()=>{
     console.log("timeframe change")
     setCurrentPage(0);
-    processData();
   },[filters.timeframe])
 
-const processData = () => {
-  let categories = [];
-  let seriesData = [];
+// const processData = () => {
+//   let categories = [];
+//   let seriesData = [];
 
-  // Check the active timeframe filter and only process the relevant data
-  if (filters.timeframe === "weekly") {
-    paginatedData.forEach((dataPoint) => {
-      if (dataPoint.Week) {
-        categories.push(dataPoint.Week);
-        seriesData.push(dataPoint.Count);
-      }
-    });
-  } else if (filters.timeframe === "monthly") {
-    paginatedData.forEach((dataPoint) => {
-      if (dataPoint.Month) {
-        categories.push(dataPoint.Month);
-        seriesData.push(dataPoint.Count);
-      }
-    });
-  } else if (filters.timeframe === "yearly") {
-    paginatedData.forEach((dataPoint) => {
-      if (dataPoint.Year) {
-        categories.push(dataPoint.Year);
-        seriesData.push(dataPoint.Count);
-      }
-    });
-  }
+//   // Check the active timeframe filter and only process the relevant data
+//   if (filters.timeframe === "weekly") {
+//     categories=[];
+//     seriesData=[];
+//     paginatedData.forEach((dataPoint) => {
+//       if (dataPoint.Week) {
+//         categories.push(dataPoint.Week);
+//         seriesData.push(dataPoint.Count);
+//       }
+//     });
+//     console.log("categories", categories)
+//     console.log("seriesData", seriesData)
+//   } else if (filters.timeframe === "monthly") {
+//     categories=[];
+//     seriesData=[];
+//     paginatedData.forEach((dataPoint) => {
+//       if (dataPoint.Month) {
+//         categories.push(dataPoint.Month);
+//         seriesData.push(dataPoint.Count);
+//       }
+//     });
+//   } else if (filters.timeframe === "yearly") {
+//     categories=[];
+//     seriesData=[];
+//     paginatedData.forEach((dataPoint) => {
+//       if (dataPoint.Year) {
+//         categories.push(dataPoint.Year);
+//         seriesData.push(dataPoint.Count);
+//       }
+//     });
+//   }
 
-  return { categories, seriesData };
-};
+//   return { categories, seriesData };
+// };
 
 
   const { categories, seriesData } = processData();

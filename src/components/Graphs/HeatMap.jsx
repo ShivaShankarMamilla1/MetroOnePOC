@@ -792,10 +792,10 @@ const Heatmap = () => {
           shadeIntensity: 0.5,
           colorScale: {
             ranges: [
-              { from: 0, to: 100, color: "#E3F2FD" },
-              { from: 101, to: 300, color: "#90CAF9" },
+              { from: 0, to: 100, color: "#FFEB3B" },
+              { from: 101, to: 300, color: "#FFC107" },
               { from: 301, to: 600, color: "#42A5F5" },
-              { from: 601, to: 1000, color: "#1565C0" },
+              { from: 601, to: 5000, color: "#1565C0" },
             ],
           },
         },

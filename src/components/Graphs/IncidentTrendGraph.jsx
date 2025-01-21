@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import { ChartFilters } from "../ChatFilters";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, IconButton } from "@mui/material";
 import { fetchTrendLinePlotData } from "../../api/graphData";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 const TrendGraphWithFilters = () => {
   const [graphData, setGraphData] = useState([]);
@@ -29,6 +31,9 @@ const TrendGraphWithFilters = () => {
     incidentType: "",
     timeframe: "weekly",
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     const getData = async () => {
@@ -68,7 +73,13 @@ const TrendGraphWithFilters = () => {
     getData();
   }, [activeFilter]);
 
-  // Function to dynamically extract data based on timeframe
+
+    useEffect(()=>{
+      console.log("timeframe change")
+      setCurrentPage(1);
+    },[filters.timeframe])
+
+  // Function to dynamically extract data based on timeframe and pagination
   const processDataForGraph = () => {
     const timeframeData = graphData.filter((data) => {
       if (filters.timeframe === "daily" && data.Date) return true;
@@ -78,7 +89,11 @@ const TrendGraphWithFilters = () => {
       return false;
     });
 
-    const categories = timeframeData.map((data) =>
+    // Apply pagination by slicing data
+    const startIndex = (currentPage - 1) * pageSize;
+    const paginatedData = timeframeData.slice(startIndex, startIndex + pageSize);
+
+    const categories = paginatedData.map((data) =>
       filters.timeframe === "daily"
         ? data.Date
         : filters.timeframe === "weekly"
@@ -93,7 +108,7 @@ const TrendGraphWithFilters = () => {
         name: `${
           filters.timeframe.charAt(0).toUpperCase() + filters.timeframe.slice(1)
         } Trend`,
-        data: timeframeData.map((data) => data.Count),
+        data: paginatedData.map((data) => data.Count),
       },
     ];
 
@@ -140,6 +155,20 @@ const TrendGraphWithFilters = () => {
 
   const handleApplyFilters = async () => {
     setActiveFilter(filters);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  // Handle pagination navigation
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(graphData.length / pageSize)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -166,12 +195,45 @@ const TrendGraphWithFilters = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <ReactApexChart
-          options={options}
-          series={series}
-          type="line"
-          height={300}
-        />
+         <Box sx={{ position: "relative", width: "100%" }}>
+        <IconButton
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            sx={{
+              position: "absolute",
+              left: "-10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              color: "black",
+            }}
+          >
+            <KeyboardArrowLeftIcon fontSize="large" />
+          </IconButton>
+
+          <ReactApexChart
+            options={options}
+            series={series}
+            type="line"
+            height={300}
+          />
+
+        <IconButton
+            onClick={handleNextPage}
+            disabled={currentPage === Math.ceil(graphData.length / pageSize) - 1}
+            sx={{
+              position: "absolute",
+              right: "-30px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              color: "black",
+            }}
+          >
+            <KeyboardArrowRightIcon fontSize="large" />
+          </IconButton>  
+         
+          </Box>
       )}
     </Box>
   );
