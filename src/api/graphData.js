@@ -33,3 +33,21 @@ export const fetchTimeIncidentsHistogramData = async (payload) => {
         throw error;
     }
 };
+export const fetchTrendLinePlotData = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/lineplot/trends', payload);
+        return response
+    } catch (error) {
+        console.error('Error fetching incident types histogram:', error);
+        throw error;
+    }
+};
+export const fetchForecastData = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/forecast/incident-counts', payload);
+        return response
+    } catch (error) {
+        console.error('Error fetching incident types histogram:', error);
+        throw error;
+    }
+};
