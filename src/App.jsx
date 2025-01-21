@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import AppHeader from "./components/Header";
 import TrendGraphWithFilters from "./components/Graphs/IncidentTrendGraph";
 import HeatmapGraph from "./components/Graphs/HeatMapGraph";
