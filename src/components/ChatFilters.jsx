@@ -17,13 +17,21 @@ export const ChartFilters = ({
   onFiltersChange,
   onApplyFilters,
   filterOptions = {
-    clients: ["Client A", "Client B", "Client C"],
-    sites: ["Site 1", "Site 2", "Site 3"],
-    regions: ["North", "South", "East", "West"],
-    incidentTypes: ["Type 1", "Type 2", "Type 3"],
+    client: [],
+    site: [],
+    metroRegion: [],
+    incidentType: [],
   },
   showTimeFrame = false,
   isDaily = true,
+  isIncidentType = true,
+  defaultFilters = {
+    client: "",
+    site: "",
+    metroRegion: "",
+    incidentType: "",
+    timeframe: "weekly",
+  },
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,6 +47,9 @@ export const ChartFilters = ({
       ...filters,
       [filterName]: value,
     });
+  };
+  const handleClearFilters = () => {
+    onFiltersChange(defaultFilters);
   };
 
   return (
@@ -63,6 +74,7 @@ export const ChartFilters = ({
             <InputLabel>Timeframe</InputLabel>
             <Select
               value={filters.timeframe}
+              defaultValue={"weekly"}
               label="Timeframe"
               onChange={(e) => handleFilterChange("timeframe", e.target.value)}
             >
@@ -100,72 +112,87 @@ export const ChartFilters = ({
             <FormControl fullWidth>
               <InputLabel>Client</InputLabel>
               <Select
-                value={filters.client}
+                value={filters.client || ""}
                 label="Client"
                 onChange={(e) => handleFilterChange("client", e.target.value)}
               >
-                {filterOptions.clients.map((client) => (
-                  <MenuItem key={client} value={client}>
-                    {client}
-                  </MenuItem>
-                ))}
+                {Array.isArray(filterOptions.client) &&
+                  filterOptions.client.map((client) => (
+                    <MenuItem key={client} value={client}>
+                      {client}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
 
             <FormControl fullWidth>
               <InputLabel>Site</InputLabel>
               <Select
-                value={filters.site}
+                value={filters.site || ""}
                 label="Site"
                 onChange={(e) => handleFilterChange("site", e.target.value)}
               >
-                {filterOptions.sites.map((site) => (
-                  <MenuItem key={site} value={site}>
-                    {site}
-                  </MenuItem>
-                ))}
+                {Array.isArray(filterOptions.site) &&
+                  filterOptions.site.map((site) => (
+                    <MenuItem key={site} value={site}>
+                      {site}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
 
             <FormControl fullWidth>
               <InputLabel>Metro Region</InputLabel>
               <Select
-                value={filters.region}
+                value={filters.metroRegion || ""}
                 label="Metro Region"
-                onChange={(e) => handleFilterChange("region", e.target.value)}
-              >
-                {filterOptions.regions.map((region) => (
-                  <MenuItem key={region} value={region}>
-                    {region}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth>
-              <InputLabel>Incident Type</InputLabel>
-              <Select
-                value={filters.incidentType}
-                label="Incident Type"
                 onChange={(e) =>
-                  handleFilterChange("incidentType", e.target.value)
+                  handleFilterChange("metroRegion", e.target.value)
                 }
               >
-                {filterOptions.incidentTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
+                {Array.isArray(filterOptions.metroRegion) &&
+                  filterOptions.metroRegion.map((region) => (
+                    <MenuItem key={region} value={region}>
+                      {region}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
 
-            <Button
-              variant="contained"
-              onClick={handleApplyFilters}
-              sx={{ mt: 2 }}
+            {isIncidentType && (
+              <FormControl fullWidth>
+                <InputLabel>Incident Type</InputLabel>
+                <Select
+                  value={filters.incidentType || ""}
+                  label="Incident Type"
+                  onChange={(e) =>
+                    handleFilterChange("incidentType", e.target.value)
+                  }
+                >
+                  {Array.isArray(filterOptions.incidentType) &&
+                    filterOptions.incidentType.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            )}
+
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}
             >
-              Apply Filters
-            </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleClearFilters}
+              >
+                Clear
+              </Button>
+              <Button variant="contained" onClick={handleApplyFilters}>
+                Apply Filters
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Modal>

@@ -1,16 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
-import { Box } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Typography,
+  Stack,
+  CircularProgress,
+} from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
+import { fetchHourlyIncidentHeatMapData } from "../../api/graphData";
 
 const HeatmapGraph = () => {
+  const [graphData, setGraphData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState({
     client: "",
     site: "",
-    region: "",
+    metroRegion: "",
     incidentType: "",
     timeframe: "weekly",
   });
+  // Separate state for active filters that will trigger the API call
+  const [activeFilter, setActiveFilter] = useState({
+    client: "",
+    site: "",
+    metroRegion: "",
+    incidentType: "",
+  });
+  // State for temporary filters that update on change but don't trigger API
+  const [tempFilters, setTempFilters] = useState({
+    client: "",
+    site: "",
+    metroRegion: "",
+    incidentType: "",
+  });
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetchHourlyIncidentHeatMapData(activeFilter);
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          client: response.data.filters.Client || "",
+          site: response.data.filters.Site || "",
+          metroRegion: response.data.filters["Metro Region"] || "",
+          incidentType: response.data.filters["Incident Type"] || "",
+          timeframe: "",
+        }));
+        const aggregatedData = [];
+        if (response.data.graphs && response.data.graphs.length > 0) {
+          response.data.graphs.forEach((graph) => {
+            if (graph.figure && Array.isArray(graph.figure)) {
+              aggregatedData.push(...graph.figure);
+            }
+          });
+        }
+        setGraphData(aggregatedData);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getData();
+  }, [activeFilter]);
   const options = {
     chart: {
       type: "heatmap",
@@ -72,39 +125,28 @@ const HeatmapGraph = () => {
     },
     legend: {
       position: "top",
+      showForZeroSeries: false,
+      labels: {
+        // Hide specific range values above 300 in the legend
+        formatter: (seriesName) => {
+          // Filter out the highest range from the legend
+          if (seriesName === "1.79+") {
+            return ""; // Empty return hides that entry from the legend
+          }
+          return seriesName;
+        },
+      },
     },
   };
 
   // Generate dummy data (random incident counts for each day and hour)
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-  const series = days.map((day, dayIndex) => ({
-    name: day,
-    data: Array.from({ length: 24 }, () => Math.floor(Math.random() * 350)),
+  const days = graphData.map((eachDay) => eachDay);
+  const series = days.map((eachDay, dayIndex) => ({
+    name: eachDay.Day,
+    data: eachDay.Count,
   }));
   const handleApplyFilters = async () => {
-    // Here you would make your API call with the selected filters
-    // Example:
-    // const response = await fetch('/api/trend-data', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     client: selectedClient,
-    //     site: selectedSite,
-    //     region: selectedRegion,
-    //     incidentType: selectedIncidentType,
-    //     timeframe: selectedFilter
-    //   })
-    // });
-    // const newData = await response.json();
-    // Update your chart data here
-    // setIsDrawerOpen(false);
+    setActiveFilter(tempFilters);
   };
 
   return (
@@ -119,16 +161,30 @@ const HeatmapGraph = () => {
       }}
     >
       <ChartFilters
-        filters={filters}
-        onFiltersChange={setFilters}
+        filters={tempFilters}
+        onFiltersChange={setTempFilters}
+        filterOptions={filters}
         onApplyFilters={handleApplyFilters}
       />
-      <ReactApexChart
-        options={options}
-        series={series}
-        type="heatmap"
-        height={380}
-      />
+      {isLoading ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "400px",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        <ReactApexChart
+          options={options}
+          series={series}
+          type="heatmap"
+          height={380}
+        />
+      )}
     </Box>
   );
 };

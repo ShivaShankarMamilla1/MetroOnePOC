@@ -4,7 +4,32 @@ import axios from 'axios';
 const axiosInstance = axios.create({
     baseURL: 'http://127.0.0.1:8000/',
 });
-
-export const getHeatMapData = () => {
-
-}
+//incident type graph without the day filters
+export const fetchIncidentTypes = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/histogram/incident-types', payload);
+        return response
+    } catch (error) {
+        console.error('Error fetching incident types histogram:', error);
+        throw error;
+    }
+};
+//first heatmap graph
+export const fetchHourlyIncidentHeatMapData = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/heatmap/hourly-incidents', payload);
+        return response
+    } catch (error) {
+        console.error('Error fetching incident types histogram:', error);
+        throw error;
+    }
+};
+export const fetchTimeIncidentsHistogramData = async (payload) => {
+    try {
+        const response = await axiosInstance.post('/histogram/time-incidents', payload);
+        return response
+    } catch (error) {
+        console.error('Error fetching incident types histogram:', error);
+        throw error;
+    }
+};
