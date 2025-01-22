@@ -483,7 +483,7 @@ const TrendGraphWithFilters = () => {
               autoHeight={false} // Disable autoHeight to make it scrollable
               sx={{ height: "100%" }} // Set height to 100% of the parent container
               disableSelectionOnClick // Disable row selection on click
-              disableColumnMenu // Disable column menu
+              disableColumnMenu
             />
           </Box>
         </Box>
