@@ -202,9 +202,8 @@ import {
   Modal,
 } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull"; // Maximize icon
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen"; // Minimize icon
-import { DataGrid } from "@mui/x-data-grid";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 import { fetchHourlyIncidentHeatMapData } from "../../api/graphData";
 
 const HeatmapGraph = () => {
@@ -396,7 +395,7 @@ const HeatmapGraph = () => {
           onApplyFilters={handleApplyFilters}
         />
         <IconButton onClick={toggleModal}>
-          {isModalOpen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
+          {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
         </IconButton>
       </Box>
 
@@ -438,8 +437,6 @@ const HeatmapGraph = () => {
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
-            display: "flex",
-            gap: 2,
           }}
         >
           {/* Minimize icon in the top-right corner */}
@@ -450,44 +447,21 @@ const HeatmapGraph = () => {
               top: 8,
               right: 8,
               zIndex: 1, // Ensure it's above other content
+              color: "error.main",
               "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)", // Reduce hover background
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
               },
             }}
           >
-            <CloseFullscreenIcon />
+            <CloseIcon />
           </IconButton>
 
-          {/* Left side: Heatmap Graph */}
-          <Box sx={{ flex: 1 }}>
-            <ReactApexChart
-              options={options}
-              series={series}
-              type="heatmap"
-              height={550}
-            />
-          </Box>
-
-          {/* Right side: DataGrid */}
-          <Box
-            sx={{
-              flex: 1,
-              height: "100%",
-              overflow: "auto", // Make the container scrollable
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              pageSize={rows.length} // Set pageSize to the total number of rows
-              rowsPerPageOptions={[]} // Hide pagination controls
-              hideFooter // Hide the entire footer (including pagination space)
-              autoHeight={false} // Disable autoHeight to make it scrollable
-              sx={{ height: "100%" }} // Set height to 100% of the parent container
-              disableSelectionOnClick // Disable row selection on click
-              disableColumnMenu // Disable column menu
-            />
-          </Box>
+          <ReactApexChart
+            options={options}
+            series={series}
+            type="heatmap"
+            height={550}
+          />
         </Box>
       </Modal>
     </Box>

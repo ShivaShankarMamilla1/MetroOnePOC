@@ -213,13 +213,14 @@ import {
   Typography,
   Stack,
   CircularProgress,
+  Modal,
 } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
 import { incidentTypesHistogramData } from "../../data/data";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 import { fetchIncidentTypes } from "../../api/graphData";
 
 const IncidentTypeBarChart = () => {
@@ -233,20 +234,19 @@ const IncidentTypeBarChart = () => {
     incidentType: "",
     timeframe: "weekly",
   });
-  // Separate state for active filters that will trigger the API call
   const [activeFilter, setActiveFilter] = useState({
     client: "",
     site: "",
     metroRegion: "",
     incidentType: "",
   });
-  // State for temporary filters that update on change but don't trigger API
   const [tempFilters, setTempFilters] = useState({
     client: "",
     site: "",
     metroRegion: "",
     incidentType: "",
   });
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -278,7 +278,7 @@ const IncidentTypeBarChart = () => {
       }
     };
     getData();
-  }, [activeFilter]); // Only depends on activeFilter now
+  }, [activeFilter]);
 
   // Get all data
   const categoryData = graphData.map(
@@ -348,8 +348,11 @@ const IncidentTypeBarChart = () => {
   };
 
   const handleApplyFilters = () => {
-    // Update activeFilter with tempFilters to trigger API call
     setActiveFilter(tempFilters);
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   return (
@@ -363,13 +366,27 @@ const IncidentTypeBarChart = () => {
         padding: "5px",
       }}
     >
-      <ChartFilters
-        filters={tempFilters}
-        onFiltersChange={setTempFilters}
-        filterOptions={filters}
-        onApplyFilters={handleApplyFilters}
-        isIncidentType={false}
-      />
+      {/* Filters and Expand Icon in the same row */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 2,
+        }}
+      >
+        <ChartFilters
+          filters={tempFilters}
+          onFiltersChange={setTempFilters}
+          filterOptions={filters}
+          onApplyFilters={handleApplyFilters}
+          isIncidentType={false}
+        />
+        {/* Expand Icon */}
+        <IconButton onClick={toggleModal}>
+          <AspectRatioIcon />
+        </IconButton>
+      </Box>
 
       {isLoading ? (
         <Box
@@ -384,6 +401,7 @@ const IncidentTypeBarChart = () => {
         </Box>
       ) : (
         <Box sx={{ position: "relative", width: "100%" }}>
+          {/* Left Arrow */}
           <IconButton
             onClick={handlePrevPage}
             disabled={currentPage === 0}
@@ -399,6 +417,7 @@ const IncidentTypeBarChart = () => {
             <KeyboardArrowLeftIcon fontSize="large" />
           </IconButton>
 
+          {/* Graph */}
           <ReactApexChart
             options={options}
             series={series}
@@ -406,6 +425,7 @@ const IncidentTypeBarChart = () => {
             height={400}
           />
 
+          {/* Right Arrow */}
           <IconButton
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
@@ -422,6 +442,91 @@ const IncidentTypeBarChart = () => {
           </IconButton>
         </Box>
       )}
+
+      {/* Modal for Expanded View */}
+      <Modal
+        open={isModalOpen}
+        onClose={toggleModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            height: "80%",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* Minimize Icon */}
+          <IconButton
+            onClick={toggleModal}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              zIndex: 1,
+              color: "error.main",
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {/* Graph in Modal */}
+          <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+            {/* Left Arrow */}
+            <IconButton
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              sx={{
+                position: "absolute",
+                left: "-10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+              }}
+            >
+              <KeyboardArrowLeftIcon fontSize="large" />
+            </IconButton>
+
+            {/* Graph */}
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="bar"
+              height={550}
+            />
+
+            {/* Right Arrow */}
+            <IconButton
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages - 1}
+              sx={{
+                position: "absolute",
+                right: "-30px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+              }}
+            >
+              <KeyboardArrowRightIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

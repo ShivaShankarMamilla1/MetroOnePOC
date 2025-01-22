@@ -218,13 +218,22 @@
 import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import { ChartFilters } from "../ChatFilters";
-import { Box, CircularProgress, IconButton, Modal } from "@mui/material";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull"; // Maximize icon
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen"; // Minimize icon
-import { DataGrid } from "@mui/x-data-grid";
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  Modal,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 import { fetchTimeIncidentsHistogramData } from "../../api/graphData";
 
 const HistoricIncidentsChart = () => {
+  const [currentPage, setCurrentPage] = useState(0);
   const [graphData, setGraphData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
@@ -250,13 +259,14 @@ const HistoricIncidentsChart = () => {
     timeframe: "weekly",
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch graph data when active filters change
   useEffect(() => {
     const getData = async () => {
       try {
         setIsLoading(true);
+        setGraphData([]);
+
         const response = await fetchTimeIncidentsHistogramData(activeFilter);
 
         const aggregatedData = [];
@@ -280,8 +290,10 @@ const HistoricIncidentsChart = () => {
           }
         }
         setGraphData(aggregatedData);
+        setCurrentPage(0);
       } catch (e) {
         console.error("Error fetching graph data:", e);
+        setGraphData([]);
       } finally {
         setIsLoading(false);
       }
@@ -289,12 +301,30 @@ const HistoricIncidentsChart = () => {
     getData();
   }, [activeFilter]);
 
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filters.timeframe]);
+
+  const filteredData = graphData.filter((dataPoint) => {
+    if (filters.timeframe === "weekly" && dataPoint.Week) return true;
+    if (filters.timeframe === "monthly" && dataPoint.Month) return true;
+    if (filters.timeframe === "yearly" && dataPoint.Year) return true;
+    return false;
+  });
+
   const processData = () => {
-    // Process the aggregated data for chart categories and series
+    if (filteredData.length === 0) {
+      return {
+        categories: ["No data"],
+        seriesData: [0],
+        isEmpty: true,
+      };
+    }
+
     let categories = [];
     let seriesData = [];
 
-    graphData.forEach((dataPoint) => {
+    filteredData.forEach((dataPoint) => {
       if (filters.timeframe === "weekly" && dataPoint.Week) {
         categories.push(dataPoint.Week);
         seriesData.push(dataPoint.Count);
@@ -307,10 +337,10 @@ const HistoricIncidentsChart = () => {
       }
     });
 
-    return { categories, seriesData };
+    return { categories, seriesData, isEmpty: false };
   };
 
-  const { categories, seriesData } = processData();
+  const { categories, seriesData, isEmpty } = processData();
 
   const chartOptions = {
     chart: {
@@ -333,23 +363,35 @@ const HistoricIncidentsChart = () => {
       labels: {
         rotate: -45,
         style: { fontSize: "12px" },
+        show: !isEmpty,
       },
       title: {
-        text:
-          filters?.timeframe?.charAt(0)?.toUpperCase() +
-            filters?.timeframe?.slice(1) || "Weekly",
+        text: isEmpty
+          ? ""
+          : filters?.timeframe?.charAt(0)?.toUpperCase() +
+              filters?.timeframe?.slice(1) || "Weekly",
         style: { fontWeight: 600 },
       },
     },
     yaxis: {
       title: {
-        text: "Count",
+        text: isEmpty ? "" : "Count",
         style: { fontWeight: 600 },
+      },
+      labels: {
+        show: !isEmpty,
       },
     },
     title: {
-      text: `Historic Incident's volume distribution (${filters.timeframe})`,
+      text: isEmpty
+        ? "No data available for selected filters"
+        : `Historic Incident's volume distribution (${filters.timeframe})`,
       align: "center",
+    },
+    noData: {
+      text: "No data available",
+      align: "center",
+      verticalAlign: "middle",
     },
   };
 
@@ -367,23 +409,6 @@ const HistoricIncidentsChart = () => {
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
-
-  // DataGrid columns and rows
-  const columns = [
-    { field: "timeframe", headerName: "Timeframe", flex: 1 },
-    { field: "count", headerName: "Count", flex: 1 },
-  ];
-
-  const rows = graphData.map((data, index) => ({
-    id: index,
-    timeframe:
-      filters.timeframe === "weekly"
-        ? data.Week
-        : filters.timeframe === "monthly"
-        ? data.Month
-        : data.Year,
-    count: data.Count,
-  }));
 
   return (
     <Box
@@ -403,17 +428,36 @@ const HistoricIncidentsChart = () => {
           justifyContent: "space-between",
         }}
       >
-        <ChartFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          filterOptions={filterOptions}
-          onApplyFilters={handleApplyFilters}
-          showTimeFrame={true}
-          isDaily={false}
-        />
-        <IconButton onClick={toggleModal}>
-          {isModalOpen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
-        </IconButton>
+        <Box sx={{ flex: 1 }}>
+          <ChartFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            filterOptions={filterOptions}
+            onApplyFilters={handleApplyFilters}
+            showTimeFrame={false}
+            isDaily={false}
+          />
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <FormControl variant="outlined" size="small">
+            <InputLabel>Timeframe</InputLabel>
+            <Select
+              value={filters.timeframe}
+              onChange={(e) =>
+                setFilters({ ...filters, timeframe: e.target.value })
+              }
+              label="Timeframe"
+            >
+              <MenuItem value="weekly">Weekly</MenuItem>
+              <MenuItem value="monthly">Monthly</MenuItem>
+              <MenuItem value="yearly">Yearly</MenuItem>
+            </Select>
+          </FormControl>
+          <IconButton onClick={toggleModal}>
+            {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
+          </IconButton>
+        </Box>
       </Box>
 
       {isLoading ? (
@@ -428,15 +472,16 @@ const HistoricIncidentsChart = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <ReactApexChart
-          options={chartOptions}
-          series={chartSeries}
-          type="bar"
-          height={350}
-        />
+        <Box sx={{ position: "relative", width: "100%" }}>
+          <ReactApexChart
+            options={chartOptions}
+            series={chartSeries}
+            type="bar"
+            height={350}
+          />
+        </Box>
       )}
 
-      {/* Modal for expanded view */}
       <Modal
         open={isModalOpen}
         onClose={toggleModal}
@@ -454,56 +499,30 @@ const HistoricIncidentsChart = () => {
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
-            display: "flex",
-            gap: 2,
           }}
         >
-          {/* Minimize icon in the top-right corner */}
+          \{" "}
           <IconButton
             onClick={toggleModal}
             sx={{
               position: "absolute",
               top: 8,
               right: 8,
-              zIndex: 1, // Ensure it's above other content
+              zIndex: 1,
+              color: "error.main",
               "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)", // Reduce hover background
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
               },
             }}
           >
-            <CloseFullscreenIcon />
+            <CloseIcon />
           </IconButton>
-
-          {/* Left side: Bar Chart */}
-          <Box sx={{ flex: 1 }}>
-            <ReactApexChart
-              options={chartOptions}
-              series={chartSeries}
-              type="bar"
-              height={550}
-            />
-          </Box>
-
-          {/* Right side: DataGrid */}
-          <Box
-            sx={{
-              flex: 1,
-              height: "100%",
-              overflow: "auto", // Make the container scrollable
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              pageSize={rows.length} // Set pageSize to the total number of rows
-              rowsPerPageOptions={[]} // Hide pagination controls
-              hideFooter // Hide the entire footer (including pagination space)
-              autoHeight={false} // Disable autoHeight to make it scrollable
-              sx={{ height: "100%" }} // Set height to 100% of the parent container
-              disableSelectionOnClick // Disable row selection on click
-              disableColumnMenu // Disable column menu
-            />
-          </Box>
+          <ReactApexChart
+            options={chartOptions}
+            series={chartSeries}
+            type="bar"
+            height={550}
+          />
         </Box>
       </Modal>
     </Box>

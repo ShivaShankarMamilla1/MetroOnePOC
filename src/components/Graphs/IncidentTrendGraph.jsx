@@ -1,8 +1,10 @@
 // import React, { useState, useEffect } from "react";
 // import ReactApexChart from "react-apexcharts";
 // import { ChartFilters } from "../ChatFilters";
-// import { Box, CircularProgress } from "@mui/material";
+// import { Box, CircularProgress, IconButton } from "@mui/material";
 // import { fetchTrendLinePlotData } from "../../api/graphData";
+// import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+// import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 // const TrendGraphWithFilters = () => {
 //   const [graphData, setGraphData] = useState([]);
@@ -29,6 +31,9 @@
 //     incidentType: "",
 //     timeframe: "weekly",
 //   });
+
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const pageSize = 10;
 
 //   useEffect(() => {
 //     const getData = async () => {
@@ -67,76 +72,49 @@
 //     };
 //     getData();
 //   }, [activeFilter]);
-//   const data = {
-//     daily: {
-//       categories: [
-//         "2025-01-01",
-//         "2025-01-02",
-//         "2025-01-03",
-//         "2025-01-04",
-//         "2025-01-05",
-//         "2025-01-06",
-//         "2025-01-07",
-//       ],
-//       series: [
-//         {
-//           name: "Daily Trend",
-//           data: [120, 150, 130, 170, 160, 140, 180],
-//         },
-//       ],
-//       color: ["#00FF00"],
-//     },
-//     weekly: {
-//       categories: [
-//         "Week 1",
-//         "Week 2",
-//         "Week 3",
-//         "Week 4",
-//         "Week 5",
-//         "Week 6",
-//         "Week 7",
-//       ],
-//       series: [
-//         {
-//           name: "Moving Average",
-//           data: [110, 145, 125, 165, 150, 135, 175],
-//         },
-//       ],
-//       color: ["#FFD700"],
-//     },
-//     monthly: {
-//       categories: [
-//         "Jan 2024",
-//         "Feb 2024",
-//         "Mar 2024",
-//         "Apr 2024",
-//         "May 2024",
-//         "Jun 2024",
-//         "Jul 2024",
-//       ],
-//       series: [
-//         {
-//           name: "Monthly Trend",
-//           data: [400, 450, 500, 550, 600, 650, 700],
-//         },
-//       ],
-//       color: ["#800080"],
-//     },
-//     yearly: {
-//       categories: ["2021", "2022", "2023", "2024", "2025"],
-//       series: [
-//         {
-//           name: "Yearly Trend",
-//           data: [1000, 2000, 3000, 4000, 5000],
-//         },
-//       ],
-//       color: ["#FFA500"],
-//     },
+
+//     useEffect(()=>{
+//       console.log("timeframe change")
+//       setCurrentPage(1);
+//     },[filters.timeframe])
+
+//   // Function to dynamically extract data based on timeframe and pagination
+//   const processDataForGraph = () => {
+//     const timeframeData = graphData.filter((data) => {
+//       if (filters.timeframe === "daily" && data.Date) return true;
+//       if (filters.timeframe === "weekly" && data.Week) return true;
+//       if (filters.timeframe === "monthly" && data.Month) return true;
+//       if (filters.timeframe === "yearly" && data.Year) return true;
+//       return false;
+//     });
+
+//     // Apply pagination by slicing data
+//     const startIndex = (currentPage - 1) * pageSize;
+//     const paginatedData = timeframeData.slice(startIndex, startIndex + pageSize);
+
+//     const categories = paginatedData.map((data) =>
+//       filters.timeframe === "daily"
+//         ? data.Date
+//         : filters.timeframe === "weekly"
+//         ? data.Week
+//         : filters.timeframe === "monthly"
+//         ? data.Month
+//         : data.Year
+//     );
+
+//     const series = [
+//       {
+//         name: `${
+//           filters.timeframe.charAt(0).toUpperCase() + filters.timeframe.slice(1)
+//         } Trend`,
+//         data: paginatedData.map((data) => data.Count),
+//       },
+//     ];
+
+//     return { categories, series };
 //   };
 
-//   const handleApplyFilters = async () => {
-//     setActiveFilter(filters);
-//   };
+//   const { categories, series } = processDataForGraph();
 
 //   const options = {
 //     chart: {
@@ -145,7 +123,7 @@
 //       zoom: { enabled: false },
 //     },
 //     xaxis: {
-//       categories: data[filters.timeframe].categories,
+//       categories: categories,
 //       title: {
 //         text:
 //           filters.timeframe === "daily"
@@ -162,7 +140,6 @@
 //     },
 //     stroke: { curve: "straight" },
 //     markers: { size: 5 },
-//     colors: data[filters.timeframe].color,
 //     title: {
 //       text: `Trend analysis of incident occurrences (${
 //         filters.timeframe.charAt(0).toUpperCase() + filters.timeframe.slice(1)
@@ -175,6 +152,24 @@
 //     },
 //   };
 
+//   const handleApplyFilters = async () => {
+//     setActiveFilter(filters);
+//     setCurrentPage(1); // Reset to first page when filters change
+//   };
+
+//   // Handle pagination navigation
+//   const handleNextPage = () => {
+//     if (currentPage < Math.ceil(graphData.length / pageSize)) {
+//       setCurrentPage(currentPage + 1);
+//     }
+//   };
+
+//   const handlePrevPage = () => {
+//     if (currentPage > 1) {
+//       setCurrentPage(currentPage - 1);
+//     }
+//   };
+
 //   return (
 //     <Box
 //       sx={{
@@ -182,7 +177,7 @@
 //         display: "flex",
 //         flexDirection: "column",
 //         justifyContent: "center",
-//         height: "100%",
+//         height: "92.5%",
 //         padding: "5px",
 //       }}
 //     >
@@ -192,18 +187,59 @@
 //         onApplyFilters={handleApplyFilters}
 //         showTimeFrame={true}
 //         filterOptions={filterOptions}
+//         isDaily={true}
 //       />
-//       <ReactApexChart
-//         options={options}
-//         series={data[filters.timeframe].series}
-//         type="line"
-//         height={300}
-//       />
+//       {isLoading ? (
+//         <Box sx={{ display: "flex", justifyContent: "center" }}>
+//           <CircularProgress />
+//         </Box>
+//       ) : (
+//          <Box sx={{ position: "relative", width: "100%" }}>
+//         <IconButton
+//             onClick={handlePrevPage}
+//             disabled={currentPage === 1}
+//             sx={{
+//               position: "absolute",
+//               left: "-10px",
+//               top: "50%",
+//               transform: "translateY(-50%)",
+//               zIndex: 1,
+//               color: "black",
+//             }}
+//           >
+//             <KeyboardArrowLeftIcon fontSize="large" />
+//           </IconButton>
+
+//           <ReactApexChart
+//             options={options}
+//             series={series}
+//             type="line"
+//             height={300}
+//           />
+
+//         <IconButton
+//             onClick={handleNextPage}
+//             disabled={currentPage === Math.ceil(graphData.length / pageSize) - 1}
+//             sx={{
+//               position: "absolute",
+//               right: "-30px",
+//               top: "50%",
+//               transform: "translateY(-50%)",
+//               zIndex: 1,
+//               color: "black",
+//             }}
+//           >
+//             <KeyboardArrowRightIcon fontSize="large" />
+//           </IconButton>
+
+//           </Box>
+//       )}
 //     </Box>
 //   );
 // };
 
 // export default TrendGraphWithFilters;
+
 import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import { ChartFilters } from "../ChatFilters";
@@ -212,11 +248,13 @@ import {
   CircularProgress,
   IconButton,
   Modal,
-  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull"; // Expand icon
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen"; // Minimize icon
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 import { fetchTrendLinePlotData } from "../../api/graphData";
 
 const TrendGraphWithFilters = () => {
@@ -245,7 +283,7 @@ const TrendGraphWithFilters = () => {
     timeframe: "weekly",
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -362,17 +400,6 @@ const TrendGraphWithFilters = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const columns = [
-    { field: "date", headerName: "Date", flex: 1 },
-    { field: "count", headerName: "Count", flex: 1 },
-  ];
-
-  const rows = graphData.map((data, index) => ({
-    id: index,
-    date: data.Date || data.Week || data.Month || data.Year,
-    count: data.Count,
-  }));
-
   return (
     <Box
       sx={{
@@ -391,20 +418,39 @@ const TrendGraphWithFilters = () => {
           justifyContent: "space-between",
         }}
       >
-        <ChartFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          onApplyFilters={handleApplyFilters}
-          showTimeFrame={true}
-          filterOptions={filterOptions}
-          isDaily={true}
-        />
-        <IconButton onClick={toggleModal}>
-          {isModalOpen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
-        </IconButton>
+        <Box sx={{ flex: 1 }}>
+          <ChartFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            onApplyFilters={handleApplyFilters}
+            showTimeFrame={false}
+            filterOptions={filterOptions}
+            isDaily={true}
+          />
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <FormControl variant="outlined" size="small">
+            <InputLabel>Timeframe</InputLabel>
+            <Select
+              value={filters.timeframe}
+              onChange={(e) =>
+                setFilters({ ...filters, timeframe: e.target.value })
+              }
+              label="Timeframe"
+            >
+              <MenuItem value="daily">Daily</MenuItem>
+              <MenuItem value="weekly">Weekly</MenuItem>
+              <MenuItem value="monthly">Monthly</MenuItem>
+              <MenuItem value="yearly">Yearly</MenuItem>
+            </Select>
+          </FormControl>
+          <IconButton onClick={toggleModal}>
+            {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
+          </IconButton>
+        </Box>
       </Box>
 
-      {/* Loading spinner */}
       {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
@@ -418,7 +464,6 @@ const TrendGraphWithFilters = () => {
         />
       )}
 
-      {/* Modal for expanded view */}
       <Modal
         open={isModalOpen}
         onClose={toggleModal}
@@ -436,56 +481,30 @@ const TrendGraphWithFilters = () => {
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
-            display: "flex",
-            gap: 2,
           }}
         >
-          {/* Minimize icon in the top-right corner */}
           <IconButton
             onClick={toggleModal}
             sx={{
               position: "absolute",
               top: 8,
               right: 8,
-              zIndex: 1, // Ensure it's above other content
+              zIndex: 1,
+              color: "error.main",
               "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)", // Reduce hover background
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
               },
             }}
           >
-            <CloseFullscreenIcon />
+            <CloseIcon />
           </IconButton>
 
-          {/* Left side: Graph */}
-          <Box sx={{ flex: 1 }}>
-            <ReactApexChart
-              options={options}
-              series={series}
-              type="line"
-              height={550}
-            />
-          </Box>
-
-          {/* Right side: DataGrid */}
-          <Box
-            sx={{
-              flex: 1,
-              height: "100%",
-              overflow: "auto", // Make the container scrollable
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              pageSize={rows.length} // Set pageSize to the total number of rows
-              rowsPerPageOptions={[]} // Hide pagination controls
-              hideFooter // Hide the entire footer (including pagination space)
-              autoHeight={false} // Disable autoHeight to make it scrollable
-              sx={{ height: "100%" }} // Set height to 100% of the parent container
-              disableSelectionOnClick // Disable row selection on click
-              disableColumnMenu
-            />
-          </Box>
+          <ReactApexChart
+            options={options}
+            series={series}
+            type="line"
+            height={550}
+          />
         </Box>
       </Modal>
     </Box>

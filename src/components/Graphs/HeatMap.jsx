@@ -411,15 +411,16 @@ import Chart from "react-apexcharts";
 import {
   Box,
   IconButton,
-  Typography,
-  Stack,
   CircularProgress,
   Modal,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { ChartFilters } from "../ChatFilters";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull"; // Maximize icon
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen"; // Minimize icon
-import { DataGrid } from "@mui/x-data-grid";
+import { ChartFilters } from "../ChatFilters"; // Import the global ChartFilters
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 import { fetchIncidentDistributionHeatMap } from "../../api/graphData";
 
 const Heatmap = () => {
@@ -583,25 +584,6 @@ const Heatmap = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // DataGrid columns and rows
-  const columns = [
-    { field: "name", headerName: "Time", width: 150 },
-    ...getCategories().map((category) => ({
-      field: category.toLowerCase(),
-      headerName: category,
-      width: 100,
-    })),
-  ];
-
-  const rows = graphData.map((data, index) => ({
-    id: index,
-    name: data.name,
-    ...getCategories().reduce((acc, category, idx) => {
-      acc[category.toLowerCase()] = data.data[idx];
-      return acc;
-    }, {}),
-  }));
-
   return (
     <Box sx={{ width: "95%", height: "100%", padding: "5px" }}>
       <Box
@@ -611,33 +593,56 @@ const Heatmap = () => {
           justifyContent: "space-between",
         }}
       >
-        <ChartFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          onApplyFilters={handleApplyFilters}
-          filterOptions={{
-            client: ["Client_2", "Client_3", "Client_5"],
-            site: ["Site_341", "Site_298", "Site_158"], // Truncated for brevity
-            metroRegion: [
-              "Central North",
-              "Central South",
-              "Northeast",
-              "Southeast",
-              "West",
-            ],
-            incidentType: [
-              "Verbal Altercation / Assault",
-              "Missing Property",
-              "Vandalism",
-            ], // Truncated for brevity
-          }}
-          showTimeFrame={true}
-        />
-        <IconButton onClick={toggleModal}>
-          {isModalOpen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
-        </IconButton>
+        {/* Left Side: Menu (ChartFilters) */}
+        <Box sx={{ flex: 1 }}>
+          <ChartFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            onApplyFilters={handleApplyFilters}
+            filterOptions={{
+              client: ["Client_2", "Client_3", "Client_5"],
+              site: ["Site_341", "Site_298", "Site_158"], // Truncated for brevity
+              metroRegion: [
+                "Central North",
+                "Central South",
+                "Northeast",
+                "Southeast",
+                "West",
+              ],
+              incidentType: [
+                "Verbal Altercation / Assault",
+                "Missing Property",
+                "Vandalism",
+              ], // Truncated for brevity
+            }}
+            showTimeFrame={false} // Hide timeframe in the left filters
+          />
+        </Box>
+
+        {/* Right Side: Timeframe Dropdown and Expand Icon */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <FormControl variant="outlined" size="small">
+            <InputLabel>Timeframe</InputLabel>
+            <Select
+              value={filters.timeframe}
+              onChange={(e) =>
+                setFilters({ ...filters, timeframe: e.target.value })
+              }
+              label="Timeframe"
+            >
+              <MenuItem value="daily">Daily</MenuItem>
+              <MenuItem value="weekly">Weekly</MenuItem>
+              <MenuItem value="monthly">Monthly</MenuItem>
+              <MenuItem value="yearly">Yearly</MenuItem>
+            </Select>
+          </FormControl>
+          <IconButton onClick={toggleModal}>
+            {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
+          </IconButton>
+        </Box>
       </Box>
 
+      {/* Loading spinner */}
       {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
@@ -669,8 +674,6 @@ const Heatmap = () => {
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
-            display: "flex",
-            gap: 2,
           }}
         >
           {/* Minimize icon in the top-right corner */}
@@ -681,44 +684,22 @@ const Heatmap = () => {
               top: 8,
               right: 8,
               zIndex: 1, // Ensure it's above other content
+              color: "error.main",
               "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)", // Reduce hover background
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
               },
             }}
           >
-            <CloseFullscreenIcon />
+            <CloseIcon />
           </IconButton>
 
-          {/* Left side: Heatmap Graph */}
-          <Box sx={{ flex: 1 }}>
-            <Chart
-              options={chartOptions}
-              series={graphData}
-              type="heatmap"
-              height={550}
-            />
-          </Box>
-
-          {/* Right side: DataGrid */}
-          <Box
-            sx={{
-              flex: 1,
-              height: "100%",
-              overflow: "auto", // Make the container scrollable
-            }}
-          >
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              pageSize={rows.length} // Set pageSize to the total number of rows
-              rowsPerPageOptions={[]} // Hide pagination controls
-              hideFooter // Hide the entire footer (including pagination space)
-              autoHeight={false} // Disable autoHeight to make it scrollable
-              sx={{ height: "100%" }} // Set height to 100% of the parent container
-              disableSelectionOnClick // Disable row selection on click
-              disableColumnMenu // Disable column menu
-            />
-          </Box>
+          {/* Graph in Modal */}
+          <Chart
+            options={chartOptions}
+            series={graphData}
+            type="heatmap"
+            height={550}
+          />
         </Box>
       </Modal>
     </Box>
