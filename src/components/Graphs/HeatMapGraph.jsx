@@ -5,28 +5,42 @@ import {
   IconButton,
   Typography,
   Stack,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Menu,
   CircularProgress,
 } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { fetchHourlyIncidentHeatMapData } from "../../api/graphData";
 
-const HeatmapGraph = () => {
+const HeatmapGraph = ({
+  activeFilter,
+  filters,
+  incidentTypeOptions,
+  showTimeFrame,
+}) => {
   const [graphData, setGraphData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    client: "",
-    site: "",
-    metroRegion: "",
-    incidentType: "",
-    timeframe: "weekly",
-  });
-  // Separate state for active filters that will trigger the API call
-  const [activeFilter, setActiveFilter] = useState({
-    client: "",
-    site: "",
-    metroRegion: "",
-    incidentType: "",
-  });
+  const [incidentType, setIncidentType] = useState("");
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const isMenuOpen = Boolean(menuAnchorEl);
+  // const [filters, setFilters] = useState({
+  //   client: "",
+  //   site: "",
+  //   metroRegion: "",
+  //   incidentType: "",
+  //   timeframe: "weekly",
+  // });
+  // // Separate state for active filters that will trigger the API call
+  // const [activeFilter, setActiveFilter] = useState({
+  //   client: "",
+  //   site: "",
+  //   metroRegion: "",
+  //   incidentType: "",
+  // });
   // State for temporary filters that update on change but don't trigger API
   const [tempFilters, setTempFilters] = useState({
     client: "",
@@ -35,18 +49,22 @@ const HeatmapGraph = () => {
     incidentType: "",
   });
   useEffect(() => {
+    setMenuAnchorEl(null);
     const getData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetchHourlyIncidentHeatMapData(activeFilter);
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          client: response.data.filters.Client || "",
-          site: response.data.filters.Site || "",
-          metroRegion: response.data.filters["Metro Region"] || "",
-          incidentType: response.data.filters["Incident Type"] || "",
-          timeframe: "",
-        }));
+        const response = await fetchHourlyIncidentHeatMapData({
+          ...activeFilter,
+          incidentType,
+        });
+        // setFilters((prevFilters) => ({
+        //   ...prevFilters,
+        //   client: response.data.filters.Client || "",
+        //   site: response.data.filters.Site || "",
+        //   metroRegion: response.data.filters["Metro Region"] || "",
+        //   incidentType: response.data.filters["Incident Type"] || "",
+        //   timeframe: "",
+        // }));
         const aggregatedData = [];
         if (response.data.graphs && response.data.graphs.length > 0) {
           response.data.graphs.forEach((graph) => {
@@ -63,7 +81,7 @@ const HeatmapGraph = () => {
       }
     };
     getData();
-  }, [activeFilter]);
+  }, [activeFilter, incidentType]);
   const options = {
     chart: {
       type: "heatmap",
@@ -145,8 +163,15 @@ const HeatmapGraph = () => {
     name: eachDay.Day,
     data: eachDay.Count,
   }));
-  const handleApplyFilters = async () => {
-    setActiveFilter(tempFilters);
+  // const handleApplyFilters = async () => {
+  //   setActiveFilter(tempFilters);
+  // };
+  const handleMenuOpen = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
   };
 
   return (
@@ -160,12 +185,12 @@ const HeatmapGraph = () => {
         padding: "5px",
       }}
     >
-      <ChartFilters
+      {/* <ChartFilters
         filters={tempFilters}
         onFiltersChange={setTempFilters}
         filterOptions={filters}
         onApplyFilters={handleApplyFilters}
-      />
+      /> */}
       {isLoading ? (
         <Box
           sx={{
@@ -178,12 +203,73 @@ const HeatmapGraph = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <ReactApexChart
-          options={options}
-          series={series}
-          type="heatmap"
-          height={380}
-        />
+        <>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "10px",
+              position: "relative",
+            }}
+          >
+            <IconButton onClick={handleMenuOpen}>
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchorEl}
+              open={isMenuOpen}
+              onClose={handleMenuClose}
+              PaperProps={{
+                sx: {
+                  padding: "10px",
+                  width: "250px",
+                },
+              }}
+            >
+              <FormControl size="small" fullWidth sx={{ marginBottom: "10px" }}>
+                <InputLabel id="incident-type-label">Incident Type</InputLabel>
+                <Select
+                  labelId="incident-type-label"
+                  value={incidentType}
+                  onChange={(e) => {
+                    setIncidentType(e.target.value), handleMenuClose();
+                  }}
+                  label="Incident Type"
+                >
+                  {incidentTypeOptions.map((item, index) => (
+                    <MenuItem key={index} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {showTimeFrame && (
+                <FormControl size="small" fullWidth>
+                  <InputLabel id="timeframe-label">Time Frame</InputLabel>
+                  <Select
+                    labelId="timeframe-label"
+                    value={timeFrame}
+                    onChange={(e) => {
+                      setTimeFrame(e.target.value), handleMenuClose();
+                    }}
+                    label="Time Frame"
+                  >
+                    <MenuItem value="daily">Daily</MenuItem>
+                    <MenuItem value="weekly">Weekly</MenuItem>
+                    <MenuItem value="monthly">Monthly</MenuItem>
+                    <MenuItem value="yearly">Yearly</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+            </Menu>
+          </Box>
+          <ReactApexChart
+            options={options}
+            series={series}
+            type="heatmap"
+            height={380}
+          />
+        </>
       )}
     </Box>
   );

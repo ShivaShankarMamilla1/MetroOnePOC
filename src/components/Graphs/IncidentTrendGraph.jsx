@@ -76,15 +76,15 @@
 //     useEffect(()=>{
 //       console.log("timeframe change")
 //       setCurrentPage(1);
-//     },[filters.timeframe])
+//     },[timeframe])
 
 //   // Function to dynamically extract data based on timeframe and pagination
 //   const processDataForGraph = () => {
 //     const timeframeData = graphData.filter((data) => {
-//       if (filters.timeframe === "daily" && data.Date) return true;
-//       if (filters.timeframe === "weekly" && data.Week) return true;
-//       if (filters.timeframe === "monthly" && data.Month) return true;
-//       if (filters.timeframe === "yearly" && data.Year) return true;
+//       if (timeframe === "daily" && data.Date) return true;
+//       if (timeframe === "weekly" && data.Week) return true;
+//       if (timeframe === "monthly" && data.Month) return true;
+//       if (timeframe === "yearly" && data.Year) return true;
 //       return false;
 //     });
 
@@ -93,11 +93,11 @@
 //     const paginatedData = timeframeData.slice(startIndex, startIndex + pageSize);
 
 //     const categories = paginatedData.map((data) =>
-//       filters.timeframe === "daily"
+//       timeframe === "daily"
 //         ? data.Date
-//         : filters.timeframe === "weekly"
+//         : timeframe === "weekly"
 //         ? data.Week
-//         : filters.timeframe === "monthly"
+//         : timeframe === "monthly"
 //         ? data.Month
 //         : data.Year
 //     );
@@ -105,7 +105,7 @@
 //     const series = [
 //       {
 //         name: `${
-//           filters.timeframe.charAt(0).toUpperCase() + filters.timeframe.slice(1)
+//           timeframe.charAt(0).toUpperCase() + timeframe.slice(1)
 //         } Trend`,
 //         data: paginatedData.map((data) => data.Count),
 //       },
@@ -126,11 +126,11 @@
 //       categories: categories,
 //       title: {
 //         text:
-//           filters.timeframe === "daily"
+//           timeframe === "daily"
 //             ? "Days"
-//             : filters.timeframe === "weekly"
+//             : timeframe === "weekly"
 //             ? "Weeks"
-//             : filters.timeframe === "monthly"
+//             : timeframe === "monthly"
 //             ? "Months"
 //             : "Years",
 //       },
@@ -142,7 +142,7 @@
 //     markers: { size: 5 },
 //     title: {
 //       text: `Trend analysis of incident occurrences (${
-//         filters.timeframe.charAt(0).toUpperCase() + filters.timeframe.slice(1)
+//         timeframe.charAt(0).toUpperCase() + timeframe.slice(1)
 //       })`,
 //       align: "center",
 //     },
@@ -242,36 +242,53 @@
 import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import { ChartFilters } from "../ChatFilters";
-import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  CircularProgress,
+  Typography,
+  Menu,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+} from "@mui/material";
 import { fetchTrendLinePlotData } from "../../api/graphData";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-const TrendGraphWithFilters = () => {
+const TrendGraphWithFilters = ({
+  activeFilter,
+  filters,
+  incidentTypeOptions,
+  showTimeFrame,
+}) => {
   const [graphData, setGraphData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filterOptions, setFilterOptions] = useState({
-    client: [],
-    site: [],
-    metroRegion: [],
-    incidentType: [],
-  });
+  const [timeframe, setTimeframe] = useState("weekly");
+  const [incidentType, setIncidentType] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const isMenuOpen = Boolean(anchorEl);
 
-  const [filters, setFilters] = useState({
-    client: "",
-    site: "",
-    metroRegion: "",
-    incidentType: "",
-    timeframe: "weekly",
-  });
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
-  const [activeFilter, setActiveFilter] = useState({
-    client: "",
-    site: "",
-    metroRegion: "",
-    incidentType: "",
-    timeframe: "weekly",
-  });
+  // const [filters, setFilters] = useState({
+  //   client: "",
+  //   site: "",
+  //   metroRegion: "",
+  //   incidentType: "",
+  //   timeframe: "weekly",
+  // });
+
+  // const [activeFilter, setActiveFilter] = useState({
+  //   client: "",
+  //   site: "",
+  //   metroRegion: "",
+  //   incidentType: "",
+  //   timeframe: "weekly",
+  // });
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -280,7 +297,10 @@ const TrendGraphWithFilters = () => {
     const getData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetchTrendLinePlotData(activeFilter);
+        const response = await fetchTrendLinePlotData({
+          ...activeFilter,
+          incidentType,
+        });
 
         const aggregatedData = [];
         if (response.data.graphs && response.data.graphs.length > 0) {
@@ -289,18 +309,18 @@ const TrendGraphWithFilters = () => {
               aggregatedData.push(...graph.figure);
             }
           });
-          if (response.data.filters) {
-            setFilterOptions({
-              client: [...new Set(response.data.filters.Client || [])],
-              site: [...new Set(response.data.filters.Site || [])],
-              metroRegion: [
-                ...new Set(response.data.filters["Metro Region"] || []),
-              ],
-              incidentType: [
-                ...new Set(response.data.filters["Incident Type"] || []),
-              ],
-            });
-          }
+          // if (response.data.filters) {
+          //   setFilterOptions({
+          //     client: [...new Set(response.data.filters.Client || [])],
+          //     site: [...new Set(response.data.filters.Site || [])],
+          //     metroRegion: [
+          //       ...new Set(response.data.filters["Metro Region"] || []),
+          //     ],
+          //     incidentType: [
+          //       ...new Set(response.data.filters["Incident Type"] || []),
+          //     ],
+          //   });
+          // }
         }
         setGraphData(aggregatedData);
       } catch (e) {
@@ -311,18 +331,14 @@ const TrendGraphWithFilters = () => {
       }
     };
     getData();
-  }, [activeFilter]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters.timeframe]);
+  }, [activeFilter, incidentType]);
 
   const processDataForGraph = () => {
     const timeframeData = graphData.filter((data) => {
-      if (filters.timeframe === "daily" && data.Date) return true;
-      if (filters.timeframe === "weekly" && data.Week) return true;
-      if (filters.timeframe === "monthly" && data.Month) return true;
-      if (filters.timeframe === "yearly" && data.Year) return true;
+      if (timeframe === "daily" && data.Date) return true;
+      if (timeframe === "weekly" && data.Week) return true;
+      if (timeframe === "monthly" && data.Month) return true;
+      if (timeframe === "yearly" && data.Year) return true;
       return false;
     });
 
@@ -341,20 +357,18 @@ const TrendGraphWithFilters = () => {
     }
 
     const categories = paginatedData.map((data) =>
-      filters.timeframe === "daily"
+      timeframe === "daily"
         ? data.Date
-        : filters.timeframe === "weekly"
+        : timeframe === "weekly"
         ? data.Week
-        : filters.timeframe === "monthly"
+        : timeframe === "monthly"
         ? data.Month
         : data.Year
     );
 
     const series = [
       {
-        name: `${
-          filters.timeframe.charAt(0).toUpperCase() + filters.timeframe.slice(1)
-        } Trend`,
+        name: `${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} Trend`,
         data: paginatedData.map((data) => data.Count),
       },
     ];
@@ -375,11 +389,11 @@ const TrendGraphWithFilters = () => {
       title: {
         text: isEmpty
           ? ""
-          : filters.timeframe === "daily"
+          : timeframe === "daily"
           ? "Days"
-          : filters.timeframe === "weekly"
+          : timeframe === "weekly"
           ? "Weeks"
-          : filters.timeframe === "monthly"
+          : timeframe === "monthly"
           ? "Months"
           : "Years",
       },
@@ -399,8 +413,7 @@ const TrendGraphWithFilters = () => {
       text: isEmpty
         ? "No data available for selected filters"
         : `Trend analysis of incident occurrences (${
-            filters.timeframe.charAt(0).toUpperCase() +
-            filters.timeframe.slice(1)
+            timeframe.charAt(0).toUpperCase() + timeframe.slice(1)
           })`,
       align: "center",
     },
@@ -416,17 +429,17 @@ const TrendGraphWithFilters = () => {
     },
   };
 
-  const handleApplyFilters = () => {
-    setActiveFilter(filters);
-    setCurrentPage(1);
-  };
+  // const handleApplyFilters = () => {
+  //   setActiveFilter(filters);
+  //   setCurrentPage(1);
+  // };
 
   const totalPages = Math.ceil(
     graphData.filter((data) => {
-      if (filters.timeframe === "daily" && data.Date) return true;
-      if (filters.timeframe === "weekly" && data.Week) return true;
-      if (filters.timeframe === "monthly" && data.Month) return true;
-      if (filters.timeframe === "yearly" && data.Year) return true;
+      if (timeframe === "daily" && data.Date) return true;
+      if (timeframe === "weekly" && data.Week) return true;
+      if (timeframe === "monthly" && data.Month) return true;
+      if (timeframe === "yearly" && data.Year) return true;
       return false;
     }).length / pageSize
   );
@@ -454,73 +467,122 @@ const TrendGraphWithFilters = () => {
         padding: "5px",
       }}
     >
-      <ChartFilters
+      {/* <ChartFilters
         filters={filters}
         onFiltersChange={setFilters}
         onApplyFilters={handleApplyFilters}
         showTimeFrame={true}
         filterOptions={filterOptions}
         isDaily={true}
-      />
+      /> */}
       {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
         </Box>
       ) : (
-        <Box sx={{ position: "relative", width: "100%" }}>
-          <IconButton
-            onClick={handlePrevPage}
-            disabled={currentPage === 1 || isEmpty}
-            sx={{
-              position: "absolute",
-              left: "-10px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 1,
-              color: "black",
-              visibility: isEmpty ? "hidden" : "visible",
-            }}
-          >
-            <KeyboardArrowLeftIcon fontSize="large" />
-          </IconButton>
-
-          <ReactApexChart
-            options={options}
-            series={series}
-            type="line"
-            height={300}
-          />
-
-          <IconButton
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages || isEmpty}
-            sx={{
-              position: "absolute",
-              right: "-30px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 1,
-              color: "black",
-              visibility: isEmpty ? "hidden" : "visible",
-            }}
-          >
-            <KeyboardArrowRightIcon fontSize="large" />
-          </IconButton>
-
-          {!isEmpty && (
-            <Typography
-              variant="caption"
+        <>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <IconButton onClick={handleMenuOpen}>
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={isMenuOpen}
+              onClose={handleMenuClose}
+              PaperProps={{ sx: { padding: "10px", width: "200px" } }}
+            >
+              <FormControl size="small" fullWidth sx={{ marginBottom: "10px" }}>
+                <InputLabel id="incident-type-label">Incident Type</InputLabel>
+                <Select
+                  labelId="incident-type-label"
+                  value={incidentType}
+                  onChange={(e) => {
+                    setIncidentType(e.target.value);
+                    handleMenuClose();
+                  }}
+                  label="Incident Type"
+                >
+                  {incidentTypeOptions.map((item, index) => (
+                    <MenuItem key={index} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id="timeframe-label">Timeframe</InputLabel>
+                <Select
+                  labelId="timeframe-label"
+                  value={timeframe}
+                  onChange={(e) => {
+                    setTimeframe(e.target.value);
+                    handleMenuClose();
+                  }}
+                  label="Timeframe"
+                >
+                  {/* <MenuItem value="daily">Daily</MenuItem> */}
+                  <MenuItem value="weekly">Weekly</MenuItem>
+                  <MenuItem value="monthly">Monthly</MenuItem>
+                  <MenuItem value="yearly">Yearly</MenuItem>
+                </Select>
+              </FormControl>
+            </Menu>
+          </Box>
+          <Box sx={{ position: "relative", width: "100%" }}>
+            <IconButton
+              onClick={handlePrevPage}
+              disabled={currentPage === 1 || isEmpty}
               sx={{
                 position: "absolute",
-                bottom: "-25px",
-                right: "0",
-                color: "text.secondary",
+                left: "-10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+                visibility: isEmpty ? "hidden" : "visible",
               }}
             >
-              Page {currentPage} of {totalPages}
-            </Typography>
-          )}
-        </Box>
+              <KeyboardArrowLeftIcon fontSize="large" />
+            </IconButton>
+
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="line"
+              height={300}
+            />
+
+            <IconButton
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages || isEmpty}
+              sx={{
+                position: "absolute",
+                right: "-30px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+                visibility: isEmpty ? "hidden" : "visible",
+              }}
+            >
+              <KeyboardArrowRightIcon fontSize="large" />
+            </IconButton>
+
+            {!isEmpty && (
+              <Typography
+                variant="caption"
+                sx={{
+                  position: "absolute",
+                  bottom: "-25px",
+                  right: "0",
+                  color: "text.secondary",
+                }}
+              >
+                Page {currentPage} of {totalPages}
+              </Typography>
+            )}
+          </Box>
+        </>
       )}
     </Box>
   );

@@ -9,30 +9,30 @@ import {
 } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
 import { incidentTypesHistogramData } from "../../data/data";
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { fetchIncidentTypes } from "../../api/graphData";
 
-const IncidentTypeBarChart = () => {
+const IncidentTypeBarChart = ({ activeFilter, filters }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [graphData, setGraphData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    client: "",
-    site: "",
-    metroRegion: "",
-    incidentType: "",
-    timeframe: "weekly",
-  });
+  // const [filters, setFilters] = useState({
+  //   client: "",
+  //   site: "",
+  //   metroRegion: "",
+  //   incidentType: "",
+  //   timeframe: "weekly",
+  // });
   // Separate state for active filters that will trigger the API call
-  const [activeFilter, setActiveFilter] = useState({
-    client: "",
-    site: "",
-    metroRegion: "",
-    incidentType: "",
-  });
+  // const [activeFilter, setActiveFilter] = useState({
+  //   client: "",
+  //   site: "",
+  //   metroRegion: "",
+  //   incidentType: "",
+  // });
   // State for temporary filters that update on change but don't trigger API
   const [tempFilters, setTempFilters] = useState({
     client: "",
@@ -47,14 +47,14 @@ const IncidentTypeBarChart = () => {
       try {
         setIsLoading(true);
         const response = await fetchIncidentTypes(activeFilter);
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          client: response.data.filters.Client || "",
-          site: response.data.filters.Site || "",
-          metroRegion: response.data.filters["Metro Region"] || "",
-          incidentType: response.data.filters["Incident Type"] || "",
-          timeframe: "",
-        }));
+        // setFilters((prevFilters) => ({
+        //   ...prevFilters,
+        //   client: response.data.filters.Client || "",
+        //   site: response.data.filters.Site || "",
+        //   metroRegion: response.data.filters["Metro Region"] || "",
+        //   incidentType: response.data.filters["Incident Type"] || "",
+        //   timeframe: "",
+        // }));
         const aggregatedData = [];
         if (response.data.graphs && response.data.graphs.length > 0) {
           response.data.graphs.forEach((graph) => {
@@ -140,10 +140,10 @@ const IncidentTypeBarChart = () => {
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
 
-  const handleApplyFilters = () => {
-    // Update activeFilter with tempFilters to trigger API call
-    setActiveFilter(tempFilters);
-  };
+  // const handleApplyFilters = () => {
+  //   // Update activeFilter with tempFilters to trigger API call
+  //   setActiveFilter(tempFilters);
+  // };
 
   return (
     <Box
@@ -153,67 +153,70 @@ const IncidentTypeBarChart = () => {
         flexDirection: "column",
         justifyContent: "center",
         height: "100%",
-        padding: "5px",        
+        padding: "5px",
       }}
     >
-      <ChartFilters
+      {/* <ChartFilters
         filters={tempFilters}
         onFiltersChange={setTempFilters}
         filterOptions={filters}
         onApplyFilters={handleApplyFilters}
         isIncidentType={false}
-      />
-      
+      /> */}
 
-      {isLoading? 
-      <Box sx={{display: "flex", justifyContent: "center", height:"400px", alignItems:"center"}}>
-        <CircularProgress/>   
-      </Box>
-       :
-       (<Box sx={{ position: "relative", width: "100%" }}>
-        <IconButton
-          onClick={handlePrevPage}
-          disabled={currentPage === 0}
+      {isLoading ? (
+        <Box
           sx={{
-            position: "absolute",
-            left: "-10px", 
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 1,
-            color: "black"
+            display: "flex",
+            justifyContent: "center",
+            height: "400px",
+            alignItems: "center",
           }}
         >
-          <KeyboardArrowLeftIcon fontSize="large"/>
-        </IconButton>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box sx={{ position: "relative", width: "100%" }}>
+          <IconButton
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            sx={{
+              position: "absolute",
+              left: "-10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              color: "black",
+            }}
+          >
+            <KeyboardArrowLeftIcon fontSize="large" />
+          </IconButton>
 
-        <ReactApexChart
-          options={options}
-          series={series}
-          type="bar"
-          height={400}
-        />
+          <ReactApexChart
+            options={options}
+            series={series}
+            type="bar"
+            height={400}
+          />
 
-      
-        <IconButton
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages - 1}
-          sx={{
-            position: "absolute",
-            right: "-30px", 
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 1,
-            color: "black"
-          }}
-        >
-          <KeyboardArrowRightIcon fontSize="large" />
-        </IconButton>
-      </Box>)}
-  
-
+          <IconButton
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages - 1}
+            sx={{
+              position: "absolute",
+              right: "-30px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              color: "black",
+            }}
+          >
+            <KeyboardArrowRightIcon fontSize="large" />
+          </IconButton>
+        </Box>
+      )}
     </Box>
   );
 };
 
 export default IncidentTypeBarChart;
-
