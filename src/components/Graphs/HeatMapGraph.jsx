@@ -11,9 +11,12 @@ import {
   InputLabel,
   Menu,
   CircularProgress,
+  Modal,
 } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 import { fetchHourlyIncidentHeatMapData } from "../../api/graphData";
 
 const HeatmapGraph = ({
@@ -26,6 +29,7 @@ const HeatmapGraph = ({
   const [isLoading, setIsLoading] = useState(false);
   const [incidentType, setIncidentType] = useState("");
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const isMenuOpen = Boolean(menuAnchorEl);
   // const [filters, setFilters] = useState({
   //   client: "",
@@ -173,6 +177,9 @@ const HeatmapGraph = ({
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
   };
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   return (
     <Box
@@ -214,6 +221,9 @@ const HeatmapGraph = ({
           >
             <IconButton onClick={handleMenuOpen}>
               <MoreVertIcon />
+            </IconButton>
+            <IconButton onClick={toggleModal}>
+              {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
             </IconButton>
             <Menu
               anchorEl={menuAnchorEl}
@@ -271,6 +281,50 @@ const HeatmapGraph = ({
           />
         </>
       )}
+      <Modal
+        open={isModalOpen}
+        onClose={toggleModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            height: "80%",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          {/* Minimize icon in the top-right corner */}
+          <IconButton
+            onClick={toggleModal}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              zIndex: 1, // Ensure it's above other content
+              color: "error.main",
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          <ReactApexChart
+            options={options}
+            series={series}
+            type="heatmap"
+            height={750}
+          />
+        </Box>
+      </Modal>
     </Box>
   );
 };

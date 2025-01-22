@@ -8,7 +8,7 @@ import Heatmap from "./components/Graphs/HeatMap";
 import LineChart from "./components/Graphs/LineChart";
 import LoginPage from "./Pages/Login";
 import { ChartFilters } from "./components/ChatFilters";
-import { fetchTrendLinePlotData } from "./api/graphData";
+import { fetchIncidentTypes } from "./api/graphData";
 
 function App() {
   const [authenticated, setIsAuthenticated] = useState(false);
@@ -42,7 +42,7 @@ function App() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetchTrendLinePlotData(activeFilter);
+        const response = await fetchIncidentTypes(activeFilter);
         console.log("response of filters", response);
         if (response.data.filters) {
           setFilterOptions({

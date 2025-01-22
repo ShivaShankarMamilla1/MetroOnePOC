@@ -6,6 +6,7 @@ import {
   Typography,
   Stack,
   CircularProgress,
+  Modal,
 } from "@mui/material";
 import { ChartFilters } from "../ChatFilters";
 import { incidentTypesHistogramData } from "../../data/data";
@@ -14,11 +15,14 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { fetchIncidentTypes } from "../../api/graphData";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 
 const IncidentTypeBarChart = ({ activeFilter, filters }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [graphData, setGraphData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // const [filters, setFilters] = useState({
   //   client: "",
   //   site: "",
@@ -139,6 +143,9 @@ const IncidentTypeBarChart = ({ activeFilter, filters }) => {
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   // const handleApplyFilters = () => {
   //   // Update activeFilter with tempFilters to trigger API call
@@ -192,6 +199,19 @@ const IncidentTypeBarChart = ({ activeFilter, filters }) => {
             <KeyboardArrowLeftIcon fontSize="large" />
           </IconButton>
 
+          <IconButton
+            onClick={toggleModal}
+            sx={{
+              position: "absolute",
+              top: { xs: "8px", sm: "10px" }, // Adjust for small screens
+              right: { xs: "8px", sm: "10px" }, // Adjust for small screens
+              zIndex: 1,
+              color: "black",
+            }}
+          >
+            {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
+          </IconButton>
+
           <ReactApexChart
             options={options}
             series={series}
@@ -215,6 +235,89 @@ const IncidentTypeBarChart = ({ activeFilter, filters }) => {
           </IconButton>
         </Box>
       )}
+      <Modal
+        open={isModalOpen}
+        onClose={toggleModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            height: "80%",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* Minimize Icon */}
+          <IconButton
+            onClick={toggleModal}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              zIndex: 1,
+              color: "error.main",
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {/* Graph in Modal */}
+          <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+            {/* Left Arrow */}
+            <IconButton
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              sx={{
+                position: "absolute",
+                left: "-10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+              }}
+            >
+              <KeyboardArrowLeftIcon fontSize="large" />
+            </IconButton>
+
+            {/* Graph */}
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="bar"
+              height={650}
+            />
+
+            {/* Right Arrow */}
+            <IconButton
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages - 1}
+              sx={{
+                position: "absolute",
+                right: "-30px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+              }}
+            >
+              <KeyboardArrowRightIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

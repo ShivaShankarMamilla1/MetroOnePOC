@@ -11,11 +11,14 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Modal,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { fetchTimeIncidentsHistogramData } from "../../api/graphData";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
 
 const HistoricIncidentsChart = ({
   activeFilter,
@@ -28,6 +31,7 @@ const HistoricIncidentsChart = ({
   const [timeframe, setTimeframe] = useState("weekly");
   const [incidentType, setIncidentType] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const isMenuOpen = Boolean(anchorEl);
   const [filterOptions, setFilterOptions] = useState({
     client: [],
@@ -222,6 +226,9 @@ const HistoricIncidentsChart = ({
       setCurrentPage(currentPage + 1);
     }
   };
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   return (
     <Box
@@ -258,6 +265,9 @@ const HistoricIncidentsChart = ({
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
             <IconButton onClick={handleMenuOpen}>
               <MoreVertIcon />
+            </IconButton>
+            <IconButton onClick={toggleModal}>
+              {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
             </IconButton>
             <Menu
               anchorEl={anchorEl}
@@ -358,6 +368,89 @@ const HistoricIncidentsChart = ({
           </Box>
         </>
       )}
+      <Modal
+        open={isModalOpen}
+        onClose={toggleModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            height: "80%",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* Minimize Icon */}
+          <IconButton
+            onClick={toggleModal}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              zIndex: 1,
+              color: "error.main",
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {/* Graph in Modal */}
+          <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+            {/* Left Arrow */}
+            <IconButton
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              sx={{
+                position: "absolute",
+                left: "-10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+              }}
+            >
+              <KeyboardArrowLeftIcon fontSize="large" />
+            </IconButton>
+
+            {/* Graph */}
+            <ReactApexChart
+              options={chartOptions}
+              series={chartSeries}
+              type="bar"
+              height={650}
+            />
+
+            {/* Right Arrow */}
+            <IconButton
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages - 1}
+              sx={{
+                position: "absolute",
+                right: "-30px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+                color: "black",
+              }}
+            >
+              <KeyboardArrowRightIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };
