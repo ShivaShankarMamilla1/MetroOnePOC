@@ -117,11 +117,11 @@ const IncidentTypeBarChart = ({ activeFilter, filters }) => {
       categories: currentData.categories,
       labels: {
         rotate: -90,
-        style: { fontSize: "10px" },
+        style: { fontSize: "12px" },
       },
       title: {
         text: "Incident Type",
-        style: { fontWeight: 600 },
+        style: { fontWeight: 1000 },
       },
     },
     yaxis: {
@@ -250,7 +250,7 @@ const IncidentTypeBarChart = ({ activeFilter, filters }) => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "80%",
-            height: "80%",
+            height: "90%",
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
