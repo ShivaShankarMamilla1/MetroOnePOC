@@ -25,9 +25,9 @@ export const ChartFilters = ({
   isDaily = true,
   isIncidentType = true,
   defaultFilters = {
-    client: "",
-    site: "",
-    metroRegion: "",
+    client: "Client_2",
+    site: "All",
+    metroRegion: "All",
     incidentType: "",
     timeframe: "weekly",
   },
@@ -70,7 +70,7 @@ export const ChartFilters = ({
           <FormControl sx={{ minWidth: 150 }}>
             <InputLabel>Client</InputLabel>
             <Select
-              value={filters.client || ""}
+              value={filters.client || defaultFilters.client} // Default to Client_2
               label="Client"
               onChange={(e) => handleFilterChange("client", e.target.value)}
             >
@@ -86,10 +86,11 @@ export const ChartFilters = ({
           <FormControl sx={{ minWidth: 150 }}>
             <InputLabel>Site</InputLabel>
             <Select
-              value={filters.site || ""}
+              value={filters.site || defaultFilters.site} // Default to "All"
               label="Site"
               onChange={(e) => handleFilterChange("site", e.target.value)}
             >
+              <MenuItem value={"All"}>All</MenuItem> {/* Ensure "All" is present */}
               {Array.isArray(filterOptions.site) &&
                 filterOptions.site.map((site) => (
                   <MenuItem key={site} value={site}>
@@ -102,12 +103,13 @@ export const ChartFilters = ({
           <FormControl sx={{ minWidth: 150 }}>
             <InputLabel>Metro Region</InputLabel>
             <Select
-              value={filters.metroRegion || ""}
+              value={filters.metroRegion || defaultFilters.metroRegion} // Default to "All"
               label="Metro Region"
               onChange={(e) =>
                 handleFilterChange("metroRegion", e.target.value)
               }
             >
+              <MenuItem value={"All"}>All</MenuItem> {/* Ensure "All" is present */}
               {Array.isArray(filterOptions.metroRegion) &&
                 filterOptions.metroRegion.map((region) => (
                   <MenuItem key={region} value={region}>

@@ -17,7 +17,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { fetchTimeIncidentsHistogramData } from "../../api/graphData";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+// import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import CloseIcon from "@mui/icons-material/Close";
 
 const HistoricIncidentsChart = ({
@@ -267,7 +269,7 @@ const HistoricIncidentsChart = ({
               <MoreVertIcon />
             </IconButton>
             <IconButton onClick={toggleModal}>
-              {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
+              {isModalOpen ? <CloseIcon /> : <FullscreenIcon />}
             </IconButton>
             <Menu
               anchorEl={anchorEl}

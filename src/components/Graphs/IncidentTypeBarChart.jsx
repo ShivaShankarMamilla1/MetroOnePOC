@@ -15,7 +15,9 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { fetchIncidentTypes } from "../../api/graphData";
-import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+// import AspectRatioIcon from "@mui/icons-material/AspectRatio";
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import CloseIcon from "@mui/icons-material/Close";
 
 const IncidentTypeBarChart = ({ activeFilter, filters }) => {
@@ -209,7 +211,7 @@ const IncidentTypeBarChart = ({ activeFilter, filters }) => {
               color: "black",
             }}
           >
-            {isModalOpen ? <CloseIcon /> : <AspectRatioIcon />}
+            {isModalOpen ? <CloseIcon /> : <FullscreenIcon />}
           </IconButton>
 
           <ReactApexChart
