@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-    baseURL: 'http://127.0.0.1:8000/',
+    baseURL: 'http://4.255.48.125/metroone-api/',
 });
 //incident type graph without the day filters
 export const fetchIncidentTypes = async (payload) => {

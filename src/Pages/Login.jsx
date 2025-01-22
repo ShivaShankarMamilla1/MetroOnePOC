@@ -55,7 +55,11 @@ const LoginPage = ({ setIsAuthenticated }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        textAlign: "center",
+        textAlign: "center",        
+        backgroundImage:
+            "url(https://metroonelpsg.com/wp-content/uploads/2022/01/Metro_badge_website_mobile-682x1024.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",   
       }}
     >
       <Box
