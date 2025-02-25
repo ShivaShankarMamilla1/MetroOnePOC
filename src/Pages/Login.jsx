@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import backgroundImage from "../assets/235-2353513_open-guyana-police-force-logo.jpg";
 
 const LoginPage = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
@@ -53,15 +54,23 @@ const LoginPage = ({ setIsAuthenticated }) => {
         backgroundColor: "#F7F7F7", // Light grey background
         minHeight: "100vh",
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        textAlign: "center",        
-        backgroundImage:
-            "url(https://metroonelpsg.com/wp-content/uploads/2022/01/Metro_badge_website_mobile-682x1024.jpg)",
+        textAlign: "center",
+        // backgroundImage: `url(http://guyanapoliceforce.gy/wp-content/uploads/2022/06/crest.png)`,
         backgroundSize: "cover",
-        backgroundPosition: "center",   
+        backgroundPosition: "center",
       }}
     >
+      <div>
+        <img
+          src="http://guyanapoliceforce.gy/wp-content/uploads/2022/06/crest.png"
+          alt="guyana police"
+          height={100}
+          width={100}
+        />
+      </div>
       <Box
         sx={{
           width: "400px",
